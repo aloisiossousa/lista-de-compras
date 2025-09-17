@@ -70,17 +70,17 @@
                         </form>
 
                         <div class="categories-filter">
-                            <button class="category-btn active" onclick="filterByCategory('')">Todos</button>
-                            <button class="category-btn" onclick="filterByCategory('frutas')">🍎 Frutas</button>
-                            <button class="category-btn" onclick="filterByCategory('verduras')">🥬 Verduras</button>
-                            <button class="category-btn" onclick="filterByCategory('carnes')">🥩 Carnes</button>
-                            <button class="category-btn" onclick="filterByCategory('laticínios')">🥛 Laticínios</button>
-                            <button class="category-btn" onclick="filterByCategory('padaria')">🍞 Padaria</button>
-                            <button class="category-btn" onclick="filterByCategory('limpeza')">🧽 Limpeza</button>
-                            <button class="category-btn" onclick="filterByCategory('higiene')">🧴 Higiene</button>
-                            <button class="category-btn" onclick="filterByCategory('bebidas')">🥤 Bebidas</button>
-                            <button class="category-btn" onclick="filterByCategory('congelados')">🧊 Congelados</button>
-                            <button class="category-btn" onclick="filterByCategory('outros')">📦 Outros</button>
+                            <button class="category-btn active" onclick="filterByCategory(event, '')">Todos</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'frutas')">🍎 Frutas</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'verduras')">🥬 Verduras</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'carnes')">🥩 Carnes</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'laticínios')">🥛 Laticínios</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'padaria')">🍞 Padaria</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'limpeza')">🧽 Limpeza</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'higiene')">🧴 Higiene</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'bebidas')">🥤 Bebidas</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'congelados')">🧊 Congelados</button>
+                            <button class="category-btn" onclick="filterByCategory(event, 'outros')">📦 Outros</button>
                         </div>
 
                         <div id="shoppingList" class="shopping-list">
@@ -119,5 +119,15 @@
         </div>
     </div>
     <script src="js/app.js"></script>
+    <script>
+        function filterByCategory(event, category) {
+            currentFilter = category;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateDisplay();
+        }
+    </script>
 </body>
 </html>
