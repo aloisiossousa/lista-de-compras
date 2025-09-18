@@ -149,6 +149,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Adiciona listeners para atalhos de teclado
     document.addEventListener('keydown', handleKeyboardShortcuts);
+    
+    // Inicializa estado da seção colapsável
+    initializeCollapsibleSection();
 });
 
 // Atalhos de teclado
@@ -166,6 +169,14 @@ function handleKeyboardShortcuts(event) {
         case 'Enter':
             if (document.getElementById('mainApp').style.display !== 'none') {
                 document.getElementById('itemName').focus();
+            }
+            break;
+        case 'a':
+        case 'A':
+            // Alt + A para alternar seção de adicionar produto
+            if (event.altKey) {
+                event.preventDefault();
+                toggleAddProductSection();
             }
             break;
     }
@@ -253,6 +264,12 @@ function addItem(event) {
 
     NotificationSystem.show('Produto adicionado com sucesso!', 'success');
     updateDisplay();
+    
+    // Expande a seção se estiver colapsada (para mostrar o item adicionado)
+    const content = document.getElementById('addProductSection');
+    if (content && content.classList.contains('collapsed')) {
+        toggleAddProductSection();
+    }
 }
 
 function removeItem(id) {
@@ -294,7 +311,7 @@ function clearForm() {
     document.getElementById('itemName').focus();
 }
 
-function filterByCategory(category) {
+function filterByCategory(event, category) {
     currentFilter = category;
     
     // Atualizar botões ativos
@@ -484,6 +501,42 @@ function clearList() {
         DataManager.saveShoppingList();
         updateDisplay();
         NotificationSystem.show('Lista limpa com sucesso!', 'success');
+    }
+}
+
+// Funções para seção colapsável
+function initializeCollapsibleSection() {
+    // Carrega estado salvo da seção colapsável
+    const isCollapsed = window.localStorage && localStorage.getItem('addProductCollapsed') === 'true';
+    if (isCollapsed) {
+        toggleAddProductSection();
+    }
+}
+
+function toggleAddProductSection() {
+    const content = document.getElementById('addProductSection');
+    const icon = document.querySelector('.collapse-icon');
+    
+    if (content.classList.contains('collapsed')) {
+        // Expandir
+        content.classList.remove('collapsed');
+        icon.classList.remove('collapsed');
+        icon.textContent = '▼';
+        
+        // Salva estado
+        if (window.localStorage) {
+            localStorage.setItem('addProductCollapsed', 'false');
+        }
+    } else {
+        // Colapsar
+        content.classList.add('collapsed');
+        icon.classList.add('collapsed');
+        icon.textContent = '▶';
+        
+        // Salva estado
+        if (window.localStorage) {
+            localStorage.setItem('addProductCollapsed', 'true');
+        }
     }
 }
   

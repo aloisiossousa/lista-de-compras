@@ -12,6 +12,7 @@ Uma aplicação web moderna para gerenciamento de listas de compras com controle
 - **Persistência**: Dados salvos automaticamente no navegador
 - **Controle de Orçamento**: Defina e monitore seu orçamento de compras
 - **Exportação**: Exporte sua lista em formato JSON
+- **Interface Colapsável**: Seção de adicionar produto pode ser colapsada para economizar espaço
 
 ### 🎨 Interface
 - **Design Responsivo**: Funciona em desktop e mobile
@@ -22,6 +23,7 @@ Uma aplicação web moderna para gerenciamento de listas de compras com controle
 ### ⌨️ Atalhos de Teclado
 - `Enter`: Focar no campo de nome do produto
 - `Escape`: Fazer logout
+- `Alt + A`: Alternar seção de adicionar produto (colapsar/expandir)
 
 ## 🚀 Como Usar
 
