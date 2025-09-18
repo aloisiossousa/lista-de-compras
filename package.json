@@ -4,13 +4,18 @@
   "description": "Aplicação web moderna para gerenciamento de listas de compras com controle de orçamento, categorização e persistência de dados",
   "main": "index.html",
   "scripts": {
-    "test": "playwright test",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --port 5173",
-    "lint": "eslint .",
+    "preview": "vite preview --port 3000",
+    "serve": "vite preview --port 3000",
+    "lint": "eslint . --ext .js,.html",
+    "lint:fix": "eslint . --ext .js,.html --fix",
     "format": "prettier --write .",
-    "serve": "vite preview --port 3000"
+    "format:check": "prettier --check .",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "clean": "rimraf dist node_modules/.vite",
+    "start": "npm run dev"
   },
   "keywords": [
     "shopping-list",
@@ -29,6 +34,7 @@
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
+    "rimraf": "^5.0.5",
     "vite": "^7.1.5"
   },
   "type": "module",
