@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Formatação de Moeda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .currency-test {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>💰 Teste de Formatação de Moeda</h1>
+    
+    <div class="test-section">
+        <h2>Teste da Função formatCurrency</h2>
+        <button onclick="runCurrencyTests()">Executar Testes</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Testes Individuais</h2>
+        <div id="individual-tests"></div>
+    </div>
+
+    <script>
+        // Classe Utils copiada do app.js
+        class Utils {
+            static formatCurrency(value) {
+                // Garante que o valor seja um número válido
+                const numValue = parseFloat(value);
+                if (isNaN(numValue)) {
+                    return 'R$ 0,00';
+                }
+                
+                // Formata o valor usando Intl.NumberFormat
+                try {
+                    return new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(numValue);
+                } catch (error) {
+                    // Fallback caso Intl.NumberFormat não funcione
+                    return `R$ ${numValue.toFixed(2).replace('.', ',')}`;
+                }
+            }
+        }
+
+        function addTestResult(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        function addIndividualTest(input, expected, actual) {
+            const tests = document.getElementById('individual-tests');
+            const div = document.createElement('div');
+            div.className = 'currency-test';
+            
+            const isCorrect = actual === expected;
+            div.innerHTML = `
+                <span><strong>Input:</strong> ${input}</span>
+                <span><strong>Esperado:</strong> ${expected}</span>
+                <span><strong>Resultado:</strong> ${actual}</span>
+                <span style="color: ${isCorrect ? 'green' : 'red'}">${isCorrect ? '✅' : '❌'}</span>
+            `;
+            
+            if (!isCorrect) {
+                div.style.backgroundColor = '#f8d7da';
+            } else {
+                div.style.backgroundColor = '#d4edda';
+            }
+            
+            tests.appendChild(div);
+        }
+
+        function runCurrencyTests() {
+            // Limpa resultados anteriores
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('individual-tests').innerHTML = '';
+            
+            addTestResult('🧪 Iniciando testes de formatação de moeda...', 'info');
+            
+            // Casos de teste
+            const testCases = [
+                { input: 0, expected: 'R$ 0,00' },
+                { input: 1, expected: 'R$ 1,00' },
+                { input: 1.5, expected: 'R$ 1,50' },
+                { input: 10.99, expected: 'R$ 10,99' },
+                { input: 123.45, expected: 'R$ 123,45' },
+                { input: 1000, expected: 'R$ 1.000,00' },
+                { input: 1234.56, expected: 'R$ 1.234,56' },
+                { input: '10.50', expected: 'R$ 10,50' },
+                { input: 'abc', expected: 'R$ 0,00' },
+                { input: null, expected: 'R$ 0,00' },
+                { input: undefined, expected: 'R$ 0,00' },
+                { input: '', expected: 'R$ 0,00' }
+            ];
+            
+            let passedTests = 0;
+            let totalTests = testCases.length;
+            
+            testCases.forEach((testCase, index) => {
+                try {
+                    const result = Utils.formatCurrency(testCase.input);
+                    addIndividualTest(testCase.input, testCase.expected, result);
+                    
+                    if (result === testCase.expected) {
+                        passedTests++;
+                    }
+                } catch (error) {
+                    addIndividualTest(testCase.input, testCase.expected, `ERRO: ${error.message}`);
+                }
+            });
+            
+            // Resultado final
+            const successRate = (passedTests / totalTests) * 100;
+            if (successRate === 100) {
+                addTestResult(`✅ Todos os testes passaram! (${passedTests}/${totalTests})`, 'success');
+            } else {
+                addTestResult(`❌ Alguns testes falharam! (${passedTests}/${totalTests}) - ${successRate.toFixed(1)}%`, 'error');
+            }
+            
+            addTestResult(`📊 Taxa de sucesso: ${successRate.toFixed(1)}%`, 'info');
+        }
+
+        // Executa testes automaticamente ao carregar
+        window.onload = function() {
+            addTestResult('🚀 Página carregada. Clique em "Executar Testes" para começar.', 'info');
+        };
+    </script>
+</body>
+</html>

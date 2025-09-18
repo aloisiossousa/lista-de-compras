@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Formatação de Moeda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Formatação de Moeda</h1>
+    
+    <div class="debug-section">
+        <h2>Teste de Valores Específicos</h2>
+        <button onclick="testSpecificValues()">Testar Valores</button>
+        <div id="debug-output"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Teste de Cenários Reais</h2>
+        <button onclick="testRealScenarios()">Testar Cenários</button>
+        <div id="scenario-output"></div>
+    </div>
+
+    <script>
+        // Classe Utils com debug
+        class Utils {
+            static formatCurrency(value) {
+                console.log('formatCurrency chamada com:', value, 'tipo:', typeof value);
+                
+                // Garante que o valor seja um número válido
+                const numValue = parseFloat(value);
+                console.log('parseFloat result:', numValue);
+                
+                if (isNaN(numValue)) {
+                    console.log('Valor é NaN, retornando R$ 0,00');
+                    return 'R$ 0,00';
+                }
+                
+                // Formata o valor usando Intl.NumberFormat
+                try {
+                    const result = new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(numValue);
+                    console.log('Intl.NumberFormat result:', result);
+                    return result;
+                } catch (error) {
+                    console.log('Erro no Intl.NumberFormat:', error);
+                    // Fallback caso Intl.NumberFormat não funcione
+                    const fallback = `R$ ${numValue.toFixed(2).replace('.', ',')}`;
+                    console.log('Fallback result:', fallback);
+                    return fallback;
+                }
+            }
+        }
+
+        function addDebugOutput(message, containerId = 'debug-output') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'debug-output';
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function testSpecificValues() {
+            document.getElementById('debug-output').innerHTML = '';
+            
+            const testValues = [
+                0, 1, 1.5, 10.99, 123.45, 1000, 1234.56,
+                '0', '1', '1.5', '10.99', '123.45', '1000', '1234.56',
+                'abc', null, undefined, '', ' ', '0.00', '1.00'
+            ];
+            
+            addDebugOutput('=== TESTE DE VALORES ESPECÍFICOS ===\n');
+            
+            testValues.forEach(value => {
+                try {
+                    const result = Utils.formatCurrency(value);
+                    addDebugOutput(`Input: ${JSON.stringify(value)} (${typeof value}) → Result: ${result}`);
+                } catch (error) {
+                    addDebugOutput(`Input: ${JSON.stringify(value)} (${typeof value}) → ERRO: ${error.message}`);
+                }
+            });
+        }
+
+        function testRealScenarios() {
+            document.getElementById('scenario-output').innerHTML = '';
+            
+            addDebugOutput('=== TESTE DE CENÁRIOS REAIS ===\n', 'scenario-output');
+            
+            // Simula cenários reais de uso
+            const scenarios = [
+                { name: 'Produto básico', price: 5.99, quantity: 2 },
+                { name: 'Produto com centavos', price: 12.50, quantity: 1 },
+                { name: 'Produto caro', price: 299.99, quantity: 1 },
+                { name: 'Produto com desconto', price: 0.99, quantity: 10 },
+                { name: 'Produto de entrada inválida', price: 'abc', quantity: 1 },
+                { name: 'Produto com preço zero', price: 0, quantity: 1 },
+                { name: 'Produto com preço negativo', price: -5, quantity: 1 }
+            ];
+            
+            scenarios.forEach(scenario => {
+                addDebugOutput(`\n--- ${scenario.name} ---`, 'scenario-output');
+                addDebugOutput(`Preço: ${scenario.price} (${typeof scenario.price})`, 'scenario-output');
+                addDebugOutput(`Quantidade: ${scenario.quantity}`, 'scenario-output');
+                
+                try {
+                    const formattedPrice = Utils.formatCurrency(scenario.price);
+                    const total = scenario.price * scenario.quantity;
+                    const formattedTotal = Utils.formatCurrency(total);
+                    
+                    addDebugOutput(`Preço formatado: ${formattedPrice}`, 'scenario-output');
+                    addDebugOutput(`Total: ${total} → ${formattedTotal}`, 'scenario-output');
+                } catch (error) {
+                    addDebugOutput(`ERRO: ${error.message}`, 'scenario-output');
+                }
+            });
+        }
+
+        // Executa testes automaticamente
+        window.onload = function() {
+            addDebugOutput('🚀 Página carregada. Clique nos botões para executar os testes.', 'debug-output');
+        };
+    </script>
+</body>
+</html>
