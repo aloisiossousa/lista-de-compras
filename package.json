@@ -1,19 +1,28 @@
 {
-  "name": "lista",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "lista-de-compras",
+  "version": "2.0.0",
+  "description": "Aplicação web moderna para gerenciamento de listas de compras com controle de orçamento, categorização e persistência de dados",
+  "main": "index.html",
   "scripts": {
     "test": "playwright test",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 5173",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "serve": "vite preview --port 3000"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "shopping-list",
+    "lista-compras",
+    "budget-control",
+    "javascript",
+    "html5",
+    "css3",
+    "localStorage"
+  ],
+  "author": "Dev.com",
+  "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@playwright/test": "^1.55.0",
@@ -22,5 +31,13 @@
     "prettier": "^3.6.2",
     "vite": "^7.1.5"
   },
-  "type": "module"
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devcom/lista-de-compras.git"
+  },
+  "bugs": {
+    "url": "https://github.com/devcom/lista-de-compras/issues"
+  },
+  "homepage": "https://github.com/devcom/lista-de-compras#readme"
 }

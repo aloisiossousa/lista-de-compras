@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Lista de Compras</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Estilos específicos para a tela de login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body.dark .login-container {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .login-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        body.dark .login-form {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+        }
+
+        .login-form h1 {
+            margin-bottom: 30px;
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        body.dark .login-form h1 {
+            color: #74b9ff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        body.dark .form-group label {
+            color: #ddd;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        body.dark .form-group input {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        body.dark .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .credentials-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+        }
+
+        body.dark .credentials-info {
+            color: #aaa;
+        }
+
+        .credentials-info strong {
+            color: #333;
+        }
+
+        body.dark .credentials-info strong {
+            color: #fff;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <form class="login-form" onsubmit="login(event)">
+            <h1>🛒 Lista de Compras</h1>
+            <div class="form-group">
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" placeholder="Digite seu usuário" required aria-describedby="username-help">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" placeholder="Digite sua senha" required aria-describedby="password-help">
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Verificando credenciais...</p>
+            </div>
+            <div class="credentials-info">
+                <strong>Credenciais para teste:</strong><br>
+                Usuário: <strong>admin</strong><br>
+                Senha: <strong>123456</strong><br>
+                <br>
+                <em>ou</em><br>
+                <br>
+                Usuário: <strong>usuario</strong><br>
+                Senha: <strong>senha123</strong>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let currentUser = null;
+
+        // Credenciais de exemplo
+        const users = {
+            'admin': '123456',
+            'usuario': 'senha123'
+        };
+
+        // Sistema de notificações
+        class NotificationSystem {
+            static show(message, type = 'info', duration = 3000) {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span class="notification-icon">${this.getIcon(type)}</span>
+                        <span class="notification-message">${message}</span>
+                        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, duration);
+            }
+            
+            static getIcon(type) {
+                const icons = {
+                    'success': '✅',
+                    'error': '❌',
+                    'warning': '⚠️',
+                    'info': 'ℹ️'
+                };
+                return icons[type] || icons.info;
+            }
+        }
+
+        // Utilitários
+        class Utils {
+            static sanitizeInput(input) {
+                return input.trim().replace(/[<>]/g, '');
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verifica se existe tema salvo
+            const savedTheme = window.localStorage && localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+            }
+
+            // Verifica se há usuário logado
+            const savedUser = window.sessionStorage && sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                // Se já está logado, redireciona para a aplicação principal
+                window.location.href = 'index.html';
+            }
+
+            // Adiciona listeners para atalhos de teclado
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+        });
+
+        // Atalhos de teclado
+        function handleKeyboardShortcuts(event) {
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            switch(event.key) {
+                case 'Enter':
+                    document.getElementById('username').focus();
+                    break;
+            }
+        }
+
+        // Autenticação
+        function login(event) {
+            event.preventDefault();
+            
+            const username = Utils.sanitizeInput(document.getElementById('username').value);
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loading');
+
+            if (!username || !password) {
+                NotificationSystem.show('Por favor, preencha todos os campos!', 'warning');
+                return;
+            }
+
+            // Mostra loading
+            loginBtn.style.display = 'none';
+            loading.style.display = 'block';
+
+            // Simula delay de autenticação
+            setTimeout(() => {
+                if (users[username] && users[username] === password) {
+                    currentUser = username;
+                    if (window.sessionStorage) {
+                        sessionStorage.setItem('currentUser', username);
+                    }
+                    NotificationSystem.show(`Bem-vindo, ${username}!`, 'success');
+                    
+                    // Redireciona para a aplicação principal
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    NotificationSystem.show('Usuário ou senha incorretos!', 'error');
+                    
+                    // Esconde loading e mostra botão novamente
+                    loginBtn.style.display = 'block';
+                    loading.style.display = 'none';
+                }
+            }, 1500);
+        }
+
+        // Adiciona estilos para notificações
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                min-width: 300px;
+                max-width: 400px;
+                animation: slideIn 0.3s ease;
+            }
+
+            body.dark .notification {
+                background: #2c3e50;
+                color: white;
+            }
+
+            .notification-content {
+                display: flex;
+                align-items: center;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .notification-icon {
+                font-size: 18px;
+            }
+
+            .notification-message {
+                flex: 1;
+                font-weight: 500;
+            }
+
+            .notification-close {
+                background: none;
+                border: none;
+                font-size: 18px;
+                cursor: pointer;
+                color: #666;
+                padding: 0;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            body.dark .notification-close {
+                color: #ccc;
+            }
+
+            .notification-close:hover {
+                color: #e74c3c;
+            }
+
+            .notification-success {
+                border-left: 4px solid #27ae60;
+            }
+
+            .notification-error {
+                border-left: 4px solid #e74c3c;
+            }
+
+            .notification-warning {
+                border-left: 4px solid #f39c12;
+            }
+
+            .notification-info {
+                border-left: 4px solid #3498db;
+            }
+
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
