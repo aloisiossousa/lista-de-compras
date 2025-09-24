@@ -1,4 +1,3 @@
-
 // Estado da aplicação
 let currentUser = null;
 let shoppingList = [];
@@ -402,16 +401,17 @@ function updateBudgetDisplay() {
             const totalValue = shoppingList.reduce((sum, item) => sum + item.total, 0);
             const remaining = budget - totalValue;
             const percentage = (totalValue / budget) * 100;
-            
             budgetElement.innerHTML = `
                 <div class="budget-info">
                     <div class="budget-total">Orçamento: ${Utils.formatCurrency(budget)}</div>
                     <div class="budget-used">Gasto: ${Utils.formatCurrency(totalValue)} (${percentage.toFixed(1)}%)</div>
-                    <div class="budget-remaining ${remaining < 0 ? 'over-budget' : ''}">
-                        Restante: ${Utils.formatCurrency(remaining)}
-                    </div>
+                    <div class="budget-remaining ${remaining < 0 ? 'over-budget' : ''}">Restante: ${Utils.formatCurrency(remaining)}</div>
                     <div class="budget-bar">
                         <div class="budget-progress" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button class="btn-secondary" onclick="setBudget()">Alterar Orçamento</button>
+                        <button class="btn-danger" onclick="clearBudget()">Limpar Orçamento</button>
                     </div>
                 </div>
             `;
@@ -425,6 +425,15 @@ function updateBudgetDisplay() {
     }
 }
 
+// Limpar orçamento
+function clearBudget() {
+    if (confirm('Deseja remover o valor do orçamento?')) {
+        budget = 0;
+        DataManager.saveBudget();
+        updateBudgetDisplay();
+        NotificationSystem.show('Orçamento removido.', 'info');
+    }
+}
 function updateSummary() {
     const totalItems = shoppingList.reduce((sum, item) => sum + item.quantity, 0);
     const totalValue = shoppingList.reduce((sum, item) => sum + item.total, 0);
@@ -521,8 +530,7 @@ function toggleAddProductSection() {
         // Expandir
         content.classList.remove('collapsed');
         icon.classList.remove('collapsed');
-        icon.textContent = '▼';
-        
+        icon.textContent = '-';
         // Salva estado
         if (window.localStorage) {
             localStorage.setItem('addProductCollapsed', 'false');
@@ -531,8 +539,7 @@ function toggleAddProductSection() {
         // Colapsar
         content.classList.add('collapsed');
         icon.classList.add('collapsed');
-        icon.textContent = '▶';
-        
+        icon.textContent = '+';
         // Salva estado
         if (window.localStorage) {
             localStorage.setItem('addProductCollapsed', 'true');
