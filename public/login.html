@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - Lista de Compras</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <meta http-equiv="Cache-Control" content="no-store" />
+</head>
+<body>
+    <div id="app">
+        <div id="loginScreen" class="login-container">
+            <form class="login-form" onsubmit="login(event)">
+                <h1>
+                    🛒 Lista de Compras
+                </h1>
+                <div class="form-group">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                </div>
+                <button type="submit" class="login-btn">Entrar</button>
+                <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <button type="button" class="login-btn" style="background: #27ae60;" onclick="showRegister()">Criar conta</button>
+                    <button type="button" class="login-btn" style="background: #f39c12;" onclick="showForgotPassword()">Esqueci minha senha</button>
+                </div>
+                <p style="margin-top: 20px; font-size: 14px; color: #666;">
+                    <strong>Credenciais para teste:</strong><br>
+                    Usuário: <strong>admin</strong><br>
+                    Senha: <strong>123456</strong><br>
+                    <br>
+                    <em>ou</em><br>
+                    <br>
+                    Usuário: <strong>usuario</strong><br>
+                    Senha: <strong>senha123</strong>
+                </p>
+            </form>
+            <!-- Modal de Cadastro -->
+            <div id="registerModal" class="login-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100; align-items:center; justify-content:center;">
+                <form class="login-form" onsubmit="register(event)">
+                    <h2>Criar Conta</h2>
+                    <div class="form-group">
+                        <label for="regUsername">Usuário:</label>
+                        <input type="text" id="regUsername" placeholder="Escolha um usuário" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Senha:</label>
+                        <input type="password" id="regPassword" placeholder="Escolha uma senha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">E-mail:</label>
+                        <input type="email" id="regEmail" placeholder="Seu e-mail" required>
+                    </div>
+                    <button type="submit" class="login-btn" style="background:#27ae60;">Cadastrar</button>
+                    <button type="button" class="login-btn" style="background:#888; margin-top:8px;" onclick="closeRegister()">Cancelar</button>
+                    <div id="registerMsg" style="margin-top:12px; color:#c0392b; font-size:14px;"></div>
+                </form>
+            </div>
+            <!-- Modal de Recuperação de Senha -->
+            <div id="forgotModal" class="login-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100; align-items:center; justify-content:center;">
+                <form class="login-form" onsubmit="recoverPassword(event)">
+                    <h2>Recuperar Senha</h2>
+                    <div class="form-group">
+                        <label for="forgotEmail">E-mail cadastrado:</label>
+                        <input type="email" id="forgotEmail" placeholder="Digite seu e-mail" required>
+                    </div>
+                    <button type="submit" class="login-btn" style="background:#f39c12;">Recuperar</button>
+                    <button type="button" class="login-btn" style="background:#888; margin-top:8px;" onclick="closeForgotPassword()">Cancelar</button>
+                    <div id="forgotMsg" style="margin-top:12px; color:#c0392b; font-size:14px;"></div>
+                </form>
+            </div>
+            <div id="loginDebug" style="display:none; color:#c0392b; margin-top:16px; text-align:center; font-size:14px;"></div>
+        </div>
+    </div>
+    <script>
+        // Utilitário para manipular usuários no localStorage
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem('users') || '{}');
+            } catch (e) { return {}; }
+        }
+        function setUsers(users) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        // Cadastro de usuário
+        function register(event) {
+            event.preventDefault();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const msg = document.getElementById('registerMsg');
+            msg.style.color = '#c0392b';
+            if (!username || !password || !email) {
+                msg.textContent = 'Preencha todos os campos!';
+                return;
+            }
+            if (username.length < 3) {
+                msg.textContent = 'Usuário deve ter pelo menos 3 caracteres.';
+                return;
+            }
+            if (password.length < 6) {
+                msg.textContent = 'Senha deve ter pelo menos 6 caracteres.';
+                return;
+            }
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                msg.textContent = 'E-mail inválido.';
+                return;
+            }
+            let users = getUsers();
+            for (let u in users) {
+                if (u === username) { msg.textContent = 'Usuário já existe!'; return; }
+                if (users[u].email === email) { msg.textContent = 'E-mail já cadastrado!'; return; }
+            }
+            users[username] = { password, email };
+            setUsers(users);
+            msg.style.color = '#27ae60';
+            msg.textContent = 'Cadastro realizado com sucesso! Faça login.';
+            setTimeout(closeRegister, 1500);
+        }
+        // Recuperação de senha (simulação)
+        function recoverPassword(event) {
+            event.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+            const msg = document.getElementById('forgotMsg');
+            msg.style.color = '#c0392b';
+            if (!email) { msg.textContent = 'Digite o e-mail!'; return; }
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                msg.textContent = 'E-mail inválido.';
+                return;
+            }
+            let users = getUsers();
+            let found = null;
+            for (let u in users) {
+                if (users[u].email === email) { found = users[u]; break; }
+            }
+            if (found) {
+                msg.style.color = '#27ae60';
+                msg.textContent = 'Senha cadastrada: ' + found.password;
+            } else {
+                msg.style.color = '#c0392b';
+                msg.textContent = 'E-mail não encontrado!';
+            }
+        }
+        // Funções para mostrar/ocultar modais
+        function showRegister() {
+            document.getElementById('registerModal').style.display = 'flex';
+        }
+        function closeRegister() {
+            document.getElementById('registerModal').style.display = 'none';
+            document.getElementById('registerMsg').textContent = '';
+        }
+        function showForgotPassword() {
+            document.getElementById('forgotModal').style.display = 'flex';
+        }
+        function closeForgotPassword() {
+            document.getElementById('forgotModal').style.display = 'none';
+            document.getElementById('forgotMsg').textContent = '';
+        }
+        // Inline fallback login implementation: define `login` only if external script didn't load
+        if (typeof login !== 'function') {
+            (function(){
+                function getUsers() {
+                    try {
+                        const base = { 'admin': { password: '123456', email: 'admin@teste.com' }, 'usuario': { password: 'senha123', email: 'usuario@teste.com' } };
+                        return Object.assign({}, base, JSON.parse(localStorage.getItem('users') || '{}'));
+                    } catch (e) { return { 'admin': { password: '123456', email: 'admin@teste.com' }, 'usuario': { password: 'senha123', email: 'usuario@teste.com' } }; }
+                }
+                window.login = function(event) {
+                    event.preventDefault();
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    const debugEl = document.getElementById('loginDebug');
+                    const users = getUsers();
+                    if (users[username] && users[username].password === password) {
+                        try { sessionStorage.setItem('currentUser', username); } catch(e){}
+                        if (debugEl) { debugEl.style.display = 'block'; debugEl.textContent = 'Login bem-sucedido — redirecionando...'; }
+                        const target = window.location.href.replace(/[^/]*$/, 'index.html');
+                        window.location.href = target;
+                    } else {
+                        if (debugEl) { debugEl.style.display = 'block'; debugEl.textContent = 'Usuário ou senha incorretos'; }
+                        alert('Usuário ou senha incorretos!');
+                    }
+                };
+            })();
+        }
+    </script>
+</body>
+</html>
